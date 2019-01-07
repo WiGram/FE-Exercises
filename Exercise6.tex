@@ -1,0 +1,244 @@
+% !TeX spellcheck = da_DK
+\documentclass[11pt,a4paper,oneside]{article}
+
+% Overordnet opsætning
+\setlength\parindent{24pt}
+\setlength\parskip{3pt}
+\setlength{\headheight}{14pt}
+\renewcommand{\baselinestretch}{1.5}
+
+\usepackage[utf8]{inputenc}
+\usepackage[danish,english]{babel}
+\usepackage{amsfonts,amsmath} %math: align og gather mm.; fonts: flere forskellige symboler
+\usepackage[left=2cm, right=2cm, bottom=2cm]{geometry}
+\usepackage{enumitem} %anvendes til Ã¦ndring i itemize mm.
+\usepackage{fancyhdr} %Opsaening af sidehoved og -fod
+\usepackage{lastpage} % Side "x af X".
+\usepackage[ocgcolorlinks,linkcolor=black,urlcolor=black]{hyperref}
+\usepackage{indentfirst} %"Indent" efter section og chapters etc.
+\usepackage{graphicx} % for plotting graphs in matrix
+\usepackage{subcaption} % figure "footnotes"
+
+% bibliography
+% \usepackage{csquotes}
+% \usepackage{biblatex}
+% \addbibresource{bibliography.bib}
+
+% Ændring af titler
+\usepackage{sectsty}
+\subsectionfont{\normalfont\bfseries}
+\subsubsectionfont{\normalfont\itshape\underline}
+
+%Rstudio pakker
+\usepackage[svgnames]{xcolor}
+\usepackage{listings}
+
+\lstset{language=R,
+    basicstyle=\small\ttfamily,
+    stringstyle=\color{DarkGreen},
+    otherkeywords={0,1,2,3,4,5,6,7,8,9},
+    morekeywords={TRUE,FALSE},
+    deletekeywords={data,frame,length,as,character},
+    keywordstyle=\color{blue},
+    commentstyle=\color{DarkGreen},
+}
+
+% fancy table
+\usepackage{booktabs}
+\usepackage{multirow}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\leftmark}
+\fancyhead[R]{\rightmark}
+\lfoot{\author}
+\rfoot{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+%Table of Contents (toc) 
+\setcounter{secnumdepth}{0}
+\setcounter{tocdepth}{1}
+
+%symbolforkortelser
+\newcommand{\lll}{\mathcal{L}}
+\newcommand{\LL}{\Leftrightarrow}
+\newcommand{\lp}{\left(}
+\newcommand{\rp}{\right)}
+\newcommand{\rb}{\right]}
+\newcommand{\lb}{\left[}
+\newcommand{\lc}{\left\{}
+\newcommand{\rc}{\right\}}
+\newcommand{\dd}{\mathrm{d}}
+\newcommand{\cc}{\mathbb{C}}
+\newcommand{\ee}{\mathbf{E}}
+\newcommand{\ff}{\mathcal{F}}
+\newcommand{\for}{\text{ for }}
+\newcommand{\ggg}{\mathcal{G}}
+\newcommand{\hh}{\mathcal{H}}
+\newcommand{\pp}{\mathcal{P}}
+\newcommand{\qq}{\mathcal{Q}}
+\newcommand{\vv}{\mathbf{V}}
+\newcommand{\rr}{\mathbf{R}}
+\newcommand{\nn}{\mathbf{N}}
+\newcommand{\nnn}{\mathcal{N}}
+\newcommand{\ii}{\mathbf{1}}
+\newcommand{\iid}{\overset{iid}{\sim}}
+\newcommand{\bs}{\text{BS}}
+\newcommand{\sumn}{\sum_{i=1}^n}
+\newcommand{\sumt}{\sum_{t=1}^T}
+\newcommand{\var}{\text{VaR}_{t,1}^\alpha}
+\DeclareMathOperator*{\argmin}{\arg\,\min}
+
+
+\selectlanguage{english}
+
+% Sidetal er romertal frem til første kapitel
+\pagenumbering{roman}
+
+\lstset{language=R}
+
+% Environment for theorems etc.
+\newtheorem{theorem}{Theorem}
+\newtheorem{corollary}{Corollary}[theorem]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{assumption}{Assumption}
+\newtheorem{proof}{Proof}
+
+\title{Exercise sheet 6}
+\author{William Gram}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\pagenumbering{arabic}
+\rfoot{\thepage}
+\lfoot{Code at (click): \href{https://github.com/WiGram/fe_python}{GitHub/WiGram}}
+
+\section{Exercise 1}
+\renewcommand{\theequation}{1.\arabic{equation}}
+\setcounter{equation}{0}
+These exercises are a continuation of the exercises from week 5. We start by considering the model given by:
+\begin{align}
+    x_t &= \sigma_t z_t, \quad z_t \iid \nnn\lp 0, 1\rp,\\
+    \sigma_t^2 &= \sigma^2 + \ii_{\lc x_{t-1} < 0 \rc} \alpha_n x_{t-1}^2 + \ii_{\lc x_{t-1}\geq 0\rc} \alpha_p x_{t-1}^2.
+\end{align}
+
+For the remainder of this solution sheet we denote the index functions by $\ii_- = \ii_{\lc x_{t-1} < 0\rc}$ and $\ii_+ = \ii_{\lc x_{t-1}\geq 0 \rc}$.
+
+\subsection{1.1 Log-likelihood function}
+By design, the $z$'s are Gaussian, and the conditional moments are:
+\begin{align}
+    \ee\lb x_t \vert x_{t-1}\rb = 0, \quad \ee\lb x_t^2 \vert x_{t-1}\rb = \sigma_t^2.
+\end{align}
+
+Thus the log-likelihood contributions are given by:
+\begin{align}
+    \ell_t\lp \theta \rp = - \frac{1}{2}\lp \log\lp 2 \pi \sigma_t^2\rp + z_t^2\rp,
+\end{align}
+where we have used that $\frac{x_t^2}{\sigma_t^2} = z_t^2$.
+
+The conditional log-likelihood function is then given by:
+\begin{align}
+    \ell_T \lp \theta \rp = -\sumt \frac{1}{2}\lp \log\lp 2 \pi \sigma_t^2\rp + z_t^2\rp.
+\end{align}
+
+\subsection{1.2 Score and information}
+In exercise set 5 we quickly considered the score $S_T\lp \theta\rp$. We reiterate the derivation here, and will subsequently consider the information $\iota_T\lp \theta\rp$.
+
+\subsubsection{1.2.1 The score}
+First, the score is defined by:
+\begin{align}
+        S_T\lp \theta\rp = \frac{\partial \ell_T\lp \theta\rp}{\partial \theta}
+\end{align}
+Assume that $z_t$ is i.i.d. but not necessarily Gaussian. Under theorem III.2 we have that the score $S_T\lp \theta\rp$ is asymptotically Gaussian.
+
+Performing QML allows us to use the likelihood function in 1.5 regardless. Taking derivatives with respect to each parameter in $\theta$ in sequence, we have:
+\begin{align}
+    S_T^{\lp \sigma^2\rp}\lp \theta\rp 
+        &= -\frac{1}{2}\sumt \frac{1}{\sigma_t^2} - \frac{x_t^2}{\sigma_t^4} = \sumt\frac{1}{2\sigma_t^2}\lp \frac{x_t^2}{\sigma_t^2} - 1\rp \\
+    S_T^{\lp \alpha\rp}\lp \theta\rp 
+        &= - \frac{1}{2}\sumt \frac{1}{\sigma_t^2}x_{t-1}^2 - \frac{x_t^2}{\sigma_t^4}x_{t-1}^2
+        = \sumt\frac{1}{2\sigma_t^2}\lp \frac{x_t^2}{\sigma_t^2} - 1\rp x_{t-1}.
+\end{align}
+
+We can combine (1.7) and (1.8) such that the score is given by:
+\begin{align}
+    S_T\lp \theta \rp =
+        \begin{pmatrix}
+            \sumt\frac{1}{2\sigma_t^2}\lp \frac{x_t^2}{\sigma_t^2} - 1\rp \cdot 1\\
+            \sumt\frac{1}{2\sigma_t^2}\lp \frac{x_t^2}{\sigma_t^2} - 1\rp \cdot x_{t-1}^2
+        \end{pmatrix}
+        = \sumt\frac{1}{2\sigma_t^2}\lp \frac{x_t^2}{\sigma_t^2} - 1\rp
+            \begin{pmatrix}
+                1 \\
+                x_{t-1}^2
+            \end{pmatrix}
+        = \sumt\frac{1}{2\sigma_t^2}\lp z_t^2 - 1\rp w_t.
+\end{align}
+
+Since we do not have the true parameters in $\theta$, we use instead the estimates $\hat \theta$. Lemma III.2 then states that the score has an asymptotically normal distribution, i.e.:
+\begin{align}
+    \frac{1}{\sqrt{T}}S_T\lp \theta\rp \overset{d}{\rightarrow} \nnn_2\lp 0, \Omega_S\rp.
+\end{align}
+
+That is,
+\begin{align}
+    \frac{1}{\sqrt{T}}\sumt\lp \frac{1}{2\sigma_t^2}\lp z_t^2 - 1\rp w_t\rp^2 \overset{p}{\rightarrow} \ee\lb \lp \frac{1}{2\sigma_t^2}\lp z_t^2 - 1\rp w_t\rp^2\rb.
+\end{align}
+
+From (1.11) we derive the expectation as follows:
+\begin{gather}
+    \ee\lb \lp \frac{1}{2\sigma_t^2}\lp z_t^2 - 1\rp w_t\rp^2\rb 
+        = \ee\lb \ee\lb \lp \frac{1}{2\sigma_t^2}\rp^2\lp z_t^2 - 1\rp^2 w_t w_t' \bigg \vert x_{t-1}\rb\rb \notag \\
+        = \ee\lb \frac{1}{4\sigma_t^4}\ee\lb \lp z_t^2 - 1\rp^2\rb w_t w_t'\rb 
+        = \frac{\kappa}{4}\Sigma,
+\end{gather}
+where $\kappa \equiv \ee\lb \lp z_t^2 - 1\rp^2\rb$ and $\Sigma \equiv \ee\lb \frac{w_t w_t'}{\sigma_t^4}\rb$. We note that $\kappa = 2$ when $z_t \iid \nnn \lp 0, 1\rp$.
+
+\subsubsection{1.1.2 Information}
+Next, we consider the information matrix, which is the negative of the derivative of the score with respect to $\theta$. Thus, we have that:
+\begin{align}
+    \iota_T\lp \theta\rp = -\frac{\partial S_T\lp \theta\rp}{\partial \theta}.
+\end{align}
+
+The output becomes a matrix, as we are differentiating each input in the score with respect to each parameter in $\theta$:
+\begin{align}
+    \frac{\partial S_T^{\lp \sigma^2\rp}\lp \theta\rp }{\partial \sigma^2} 
+        &= \frac{1}{2} \sumt \lp \frac{1}{\sigma_t^4} - 2\frac{x_t^2}{\sigma_t^6}\rp 
+        = \sumt \frac{1}{2 \sigma_t^4}\lp 1 - 2z_t^2 \rp \\
+    \frac{\partial S_T^{\lp \sigma^2\rp}\lp \theta\rp }{\partial \alpha} 
+        &= \frac{1}{2} \sumt \lp \frac{1}{\sigma_t^4} - 2\frac{x_t^2}{\sigma_t^6}\rp x_{t-1}^2 
+        = \sumt \frac{x_{t-1}^2}{2\sigma_t^4}\lp 1 - 2z_t^2 \rp \\
+    \frac{\partial S_T^{\lp \alpha\rp}\lp \theta\rp }{\partial \sigma^2} 
+        &= \frac{1}{2} \sumt \lp \frac{1}{\sigma_t^4} - 2\frac{x_t^2}{\sigma_t^6}\rp x_{t-1}^2 
+        = \sumt \frac{x_{t-1}^2}{2\sigma_t^4}\lp 1 - 2z_t^2 \rp \\
+    \frac{\partial S_T^{\lp \alpha\rp}\lp \theta\rp }{\partial \alpha} 
+        &= \frac{1}{2} \sumt \lp \frac{1}{\sigma_t^4}x_{t-1}^2 - 2\frac{x_t^2}{\sigma_t^6}x_{t-1}^2\rp x_{t-1}^2 
+        = \sumt \frac{x_{t-1}^4}{2\sigma_t^4}\lp 1 - 2z_t^2 \rp.
+\end{align}
+
+Combining (1.14)-(1.17) we get the matrix:
+\begin{align}
+    \iota_T\lp \theta\rp =
+        \sumt \frac{1}{2\sigma_t^4}\lp 2z_t^2 - 1\rp
+        \begin{pmatrix}
+            1           &   x_{t-1}^2\\
+            x_{t-1}^2   &   x_{t-1}^4
+        \end{pmatrix}
+        = \sumt \frac{1}{2\sigma_t^4}\lp 2z_t^2 - 1\rp w_t w_t',
+\end{align}
+
+where we recall that $\iota_T\lp \theta\rp = - \frac{\partial S_T\lp \theta\rp}{\partial \theta}$.
+
+Finally, we have that:
+\begin{align}
+    \iota_T\lp \hat \theta\rp \overset{p}{\rightarrow}\ee\lb \lp 2 z_t^2 - 1\rp \frac{w_tw_t'}{2 \sigma_t^4}\rb = \frac{1}{2}\Sigma \equiv \Omega_I,
+\end{align}
+
+where as before we have that $\Sigma = \ee\lb \frac{w_t w_t'}{\sigma_t^4}\rb$
+
+We note that both rely on the existence of the fourth moment, i.e. that $\ee\lb x_t^4\rb < \infty$ for all $t \geq 0$.
+
+\end{document}
